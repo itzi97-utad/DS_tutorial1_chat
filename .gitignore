@@ -1,3 +1,7 @@
+# Ignore executables
+server
+client
+
 # General C/C++ ignores
 *~
 *.swp
