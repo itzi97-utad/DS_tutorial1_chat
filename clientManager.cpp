@@ -52,17 +52,26 @@ void clientManager::resolveClientMessages(int clientId) {
 
 			// create privateMSG packet
 			buffer.clear();
-			pack(buffer, privateMSG);
 
-			// pack recipient
-			pack(buffer, userName.size());
-			packv(buffer, userName.data(), userName.size());
-			// pack message
-			pack(buffer, msg.size());
-			packv(buffer, msg.data(), msg.size());
 			auto recipientIt = connectionIds.find(recipient);
 			if (recipientIt != connectionIds.end()) {
+				pack(buffer, privateMSG);
+				// pack recipient
+				pack(buffer, userName.size());
+				packv(buffer, userName.data(), userName.size());
+				// pack message
+				pack(buffer, msg.size());
+				packv(buffer, msg.data(), msg.size());
+
 				sendMSG(recipientIt->second, buffer);
+			} else {
+				// send error back to sender
+				buffer.clear();
+				pack(buffer, textMSG);
+				msg = "(ERROR) User " + recipient + " not found.";
+				pack(buffer, msg.size());
+				packv(buffer, msg.data(), msg.size());
+				sendMSG(clientId, buffer);
 			}
 		} break;
 
