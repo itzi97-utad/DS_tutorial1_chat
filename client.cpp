@@ -86,6 +86,9 @@ void chat(int serverId) {
 		cout << "ERROR " << __FILE__ << ":" << __LINE__ << "\n";
 	clientManager::messageLock.unlock();
 
+	cout << "Welcome to the chat, " << userName << "!" << endl;
+	cout << "Type '/w <username> <message>' to send a private message." << endl;
+
 	string msg = "";
 	while (msg != "exit") {
 		// loop until "exit"
