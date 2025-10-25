@@ -87,7 +87,8 @@ void chat(int serverId) {
 	clientManager::messageLock.unlock();
 
 	cout << "Welcome to the chat, " << userName << "!" << endl;
-	cout << "Type '/w <username> <message>' to send a private message." << endl;
+	cout << "- Type '/w <username> <message>' to send a private message." << endl;
+	cout << "- Type 'exit' to exit." << endl;
 
 	string msg = "";
 	while (msg != "exit") {
@@ -99,6 +100,7 @@ void chat(int serverId) {
 		buffer.clear();
 		if (msg == "exit") {
 			pack(buffer, clientManager::logout);
+			clientManager::isConnectionActive = false;
 		} else {
 			if (msg.rfind("/w ", 0) == 0) { // If private message
 				pack(buffer, clientManager::privateMSG);

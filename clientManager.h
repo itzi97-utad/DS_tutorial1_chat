@@ -6,7 +6,7 @@ using namespace std;
 
 class clientManager {
 public:
-	typedef enum { textMSG, privateMSG, login, logout, ack } msgTypes;
+	typedef enum { textMSG, privateMSG, noMSG, login, logout, ack } msgTypes;
 
 	static inline map<string, int> connectionIds;
 	static inline bool isConnectionActive = true;

@@ -8,7 +8,8 @@ void clientManager::resolveClientMessages(int clientId) {
 	do {
 		// receive a packet from client
 		recvMSG(clientId, buffer);
-		msgTypes type = unpack<msgTypes>(buffer);
+		msgTypes type =
+		  buffer.size() > 0 ? unpack<msgTypes>(buffer) : msgTypes::noMSG;
 		// switch type of the packet
 		switch (type) {
 			// type login
@@ -54,8 +55,8 @@ void clientManager::resolveClientMessages(int clientId) {
 			pack(buffer, privateMSG);
 
 			// pack recipient
-			pack(buffer, recipient.size());
-			packv(buffer, recipient.data(), recipient.size());
+			pack(buffer, userName.size());
+			packv(buffer, userName.data(), userName.size());
 			// pack message
 			pack(buffer, msg.size());
 			packv(buffer, msg.data(), msg.size());
@@ -65,6 +66,10 @@ void clientManager::resolveClientMessages(int clientId) {
 			}
 		} break;
 
+		case noMSG: {
+			logOut = true;
+		} break;
+
 		// type logout
 		case logout: {
 			// delete the userName
@@ -72,21 +77,26 @@ void clientManager::resolveClientMessages(int clientId) {
 			// activate logout protocol
 			logOut = true;
 			// send a "userName left the site" message
+			cout << "Client " << clientId << " disconnected" << endl;
 			buffer.clear();
 			string message = userName + " left the site";
 			pack(buffer, textMSG);        // pack the type
 			pack(buffer, message.size()); // pack the message
 			packv(buffer, message.data(), message.size());
 			for (auto client : connectionIds) { // broadcast message
-				sendMSG(client.second, buffer);
+				if (client.first != userName)
+					sendMSG(client.second, buffer);
 			}
 		} break;
 		}
-		buffer.clear();
-		pack(buffer, ack);
-		sendMSG(clientId, buffer);
+		if (type != clientManager::noMSG) {
+			buffer.clear();
+			pack(buffer, ack);
+			sendMSG(clientId, buffer);
+		}
 	} while (!logOut);
 	// close connection
 
+	connectionIds.erase(userName);
 	closeConnection(clientId);
 }
